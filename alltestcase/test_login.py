@@ -1,39 +1,48 @@
 import unittest
-from selenium import webdriver
+import os
+from common.create_driver import getDriver
 
-def add(x,y):
-    return x+y
+class UserActionTest(unittest.TestCase):
 
-driver = webdriver.Chrome()
-# user = 'testuser7'
-# passwd = '123456'
+    driver= getDriver()
+    dirname = os.path.dirname(os.path.abspath(__file__))
+    filename = os.path.join(dirname,"01.png")
 
-class userActionTest(unittest.TestCase):
-    
+    def setUp(self):
+        self.driver.maximize_window()
+        self.driver.get('http://118.31.19.120:3000/')
+
+    def tearDown(self):
+        self.driver.save_screenshot('./screenshots/01.png')
+        self.driver.delete_all_cookies()
+
     @classmethod
     def setUpClass(cls):
-        print('It is beginning')
+        pass   
 
     @classmethod
     def tearDownClass(cls):
-        driver.quit()
+        cls.driver.quit()
+        
+    def test_register(self):
+       self.driver.find_element_by_link_text('注册').click()
+       self.driver.get('http://118.31.19.120:3000/signup')
+       self.driver.find_element_by_id('loginname').send_keys('testuser555')
+       self.driver.find_element_by_id('pass').send_keys('123456')
+       self.driver.find_element_by_id('re_pass').send_keys("123456")
+       self.driver.find_element_by_id('email').send_keys('123456@123.com')
+       self.driver.find_element_by_id('pass').submit()
     
-    def test_add(self):
-        expect_val = 3
-        self.assertEqual(add(1,2),expect_val)
-    
-    def test_login(self):  
-        driver.get('http://118.31.19.120:3000/signin')
-        driver.find_element_by_id('name').send_keys('testuser7')
-        driver.find_element_by_id('pass').send_keys('123456')
-        driver.find_element_by_id('pass').submit()
-        okurl = driver.current_url
+    def test_login(self):
 
+        self.driver.find_element_by_link_text('登录').click()
+        self.driver.find_element_by_id('name').send_keys('testuser3')
+        self.driver.find_element_by_id('pass').send_keys('123456')
+        self.driver.find_element_by_id('pass').submit()
+        okurl = self.driver.current_url
         self.assertEqual(okurl,'http://118.31.19.120:3000/')
-
-        loginName = driver.find_element_by_css_selector('#sidebar > div:nth-child(1) > div.inner > div > div > span.user_name > a').text
-
-        self.assertEqual(loginName,'testuser7')
+        loginName = self.driver.find_element_by_css_selector('#sidebar > div:nth-child(1) > div.inner > div > div > span.user_name > a').text
+        self.assertEqual(loginName,'testuser3')
 
 if __name__ == "__main__":
     unittest.main()
